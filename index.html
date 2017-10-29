@@ -1,0 +1,223 @@
+<html>
+
+<head>
+    <title>Chalo Boberman</title>
+    <style>      
+    </style>
+</head>
+
+<body>
+    <div id="contendor">
+        <canvas  id="mapa" width="400" height="400" style="border:10px solid #000000;">
+        
+        </canvas>
+    </div>  
+</body>
+
+<footer>
+    <script>
+        function dibujarCuadro(x,y){
+            var canvas = document.getElementById('mapa');
+            var contexto = canvas.getContext('2d');
+            contexto.fillStyle = '#CCCCCC';
+            contexto.fillRect(x,y, 20, 20);            
+        }
+        function dibujarLadrillo(x,y,madera=true){
+            var context = document.getElementById('mapa').getContext("2d");
+            var img = new Image();
+            img.onload = function () {
+                context.drawImage(img, x, y,20,20);
+            }
+            if(madera){
+                img.src = "img/tile_wood.png"; 
+            }else{
+                img.src = "img/tile_wall.png"; 
+            }
+        }
+        function moverChalo(x,y){
+            var context = document.getElementById('mapa').getContext("2d");
+            var img = new Image();
+            img.onload = function () {
+                context.drawImage(img, x, y,20,20);
+            }
+            img.src = "img/github.png";         
+        }
+        var bomba= [];
+            bomba.armada=0;
+            bomba.posicion=[];
+            bomba.explotada=0;
+         function ponerBomba(x,y,posicionarBomba=true){
+            bomba.armada=1;
+            if(posicionarBomba){
+                 bomba.posicion.push(x+"-"+y);
+                 matrizXY.push(x+"-"+y);
+                 //Iniciar tiempo para explotar
+                 kabum=function(){                     
+                     dibujarCuadro(x,y) 
+                     borrarLadrillo(x,y)                     
+                     dibujarCuadro(x+20,y+20) 
+                     borrarLadrillo(x+20,y+20)
+                     dibujarCuadro(x+20,y) 
+                     borrarLadrillo(x+20,y)                     
+                     dibujarCuadro(x,y+20) 
+                     borrarLadrillo(x,y+20)
+                 }
+                 bombaAction.explotar(kabum)
+            }
+            var context = document.getElementById('mapa').getContext("2d");
+            var img = new Image();
+            img.onload = function () {
+                context.drawImage(img, x, y,20,20);
+            }
+            img.src = "img/bomba.png"; 
+           
+        }
+
+        var bombaAction= (function (){ 
+            return{ 
+                explotar:function(kabum){
+                    setTimeout(kabum, 2000);			
+                }, 
+            }
+        })();
+
+        function limpiarCelda(){
+            if(bomba.armada==0){
+                dibujarCuadro(global_x,global_y)                    
+            }else{
+                dibujarCuadro(global_x,global_y)
+                ponerBomba(global_x,global_y)
+            }
+            bomba.armada=0;
+        }
+
+        function borrarLadrillo(x,y){
+               var i=matrizXY.indexOf(x+"-"+y);
+               if(i>-1){
+                    matrizXY.splice(i,1);
+               }
+        }
+
+        function hayPared(x,y){
+               var i=matrizXY.indexOf(x+"-"+y);
+               if(i>-1){
+                   return false;//no, puede caminar
+               }
+               return true;
+        }
+        //Llenar mapa
+        var matrizXY=[];
+        var matrizXYOrigen=[];
+        var global_x=20;
+        var global_y=20;
+        for (var i = 0; i < 400; i=i+20) {
+            for (var j = 0; j < 400; j=j+20) {
+                if(i==0 || j==0 || i==380 || j==380){
+                    dibujarLadrillo(i,j,false)
+                }else{
+                    dibujarLadrillo(i,j)
+                }
+                matrizXY.push(i+"-"+j);
+            }            
+        }
+        matrizXYOrigen=matrizXY;
+        //Moverse en el mapa
+        document.addEventListener('keydown', function (e) {
+            lastDownTarget = event.target;
+            //derecha
+            if (e.keyCode === 39) { 
+                if(hayPared(global_x+20,global_y)){
+                     limpiarCelda()
+                     global_x=global_x+20                      
+                     moverChalo(global_x,global_y)
+                }            
+            }
+            //izquierda
+            if (e.keyCode === 37) {
+                if(hayPared(global_x-20,global_y)){
+                    limpiarCelda()
+                    global_x=global_x-20                
+                    moverChalo(global_x,global_y)
+                }
+            }
+            //bajo
+            if (e.keyCode === 40) { 
+                if(hayPared(global_x,global_y+20)){ 
+                    limpiarCelda()              
+                    global_y=global_y+20                
+                    moverChalo(global_x,global_y) 
+                }              
+            }
+            //arriba
+            if (e.keyCode === 38) {
+                if(hayPared(global_x,global_y-20)){ 
+                    limpiarCelda()
+                    global_y=global_y-20                
+                    moverChalo(global_x,global_y)
+                }
+            }  
+            //barra espaciadora
+            //Poiner Bomba
+            if (e.keyCode === 32) {
+                ponerBomba(global_x,global_y,false)
+            }  
+            //Enter
+            //Restablecemos valores
+            if (e.keyCode === 13) {
+                matrizXY=matrizXYOrigen;
+                global_x=20;
+                global_y=20;
+                dibujarCuadro(20,20);
+                moverChalo(20,20)
+                dibujarCuadro(20,40);
+                dibujarCuadro(20,60);
+                dibujarCuadro(20,80);
+                dibujarCuadro(40,20);
+                dibujarCuadro(60,20);
+                dibujarCuadro(80,20);  
+                //Borrar los ladrillos del array
+                borrarLadrillo(20,20);
+                borrarLadrillo(20,40);
+                borrarLadrillo(20,60);
+                borrarLadrillo(20,80);
+                borrarLadrillo(40,20);
+                borrarLadrillo(60,20);
+                borrarLadrillo(80,20);
+            }
+            console.log(e.keyCode)
+        }, false);
+
+
+
+
+
+
+
+/////////////////////////////////
+
+        /*
+        function onClick(e) {
+            var clickX;
+            var clickY;
+            if (e.pageX || e.pageY) { 
+                clickX = e.pageX;
+                clickY = e.pageY;
+            }
+            else { 
+                clickX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
+                clickY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
+            } 
+
+            console.log("Click "+clickX+"-"+clickY)
+            var x=valorMasCeranoX(clickX)
+            var y=valorMasCeranoY(clickY)
+            console.log("Calculo "+x+"-"+y)
+            dibujarCuadro(x,y)
+        }
+        var context = document.getElementById('mapa');
+        context.addEventListener("click", onClick, false);
+        */
+    </script>
+</footer>
+
+</html>
