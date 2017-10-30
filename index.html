@@ -1,17 +1,19 @@
 <html>
 
 <head>
-    <title>Chalo Boberman</title>
-    <style>      
+    <link rel="icon" href="img/bomba.png">
+    <title> BoberChalo</title>
+    <style>     
+    
     </style>
 </head>
 
 <body>
     <div id="contendor">
         <canvas  id="mapa" width="400" height="400" style="border:10px solid #000000;">
-        
         </canvas>
     </div>  
+ 
 </body>
 
 <footer>
@@ -19,7 +21,7 @@
         function dibujarCuadro(x,y){
             var canvas = document.getElementById('mapa');
             var contexto = canvas.getContext('2d');
-            contexto.fillStyle = '#CCCCCC';
+            contexto.fillStyle = 'white';
             contexto.fillRect(x,y, 20, 20);            
         }
         function dibujarLadrillo(x,y,madera=true){
@@ -34,13 +36,30 @@
                 img.src = "img/tile_wall.png"; 
             }
         }
-        function moverChalo(x,y){
-            var context = document.getElementById('mapa').getContext("2d");
-            var img = new Image();
-            img.onload = function () {
-                context.drawImage(img, x, y,20,20);
+        function moverChalo(x,y,moverse='derecha'){
+            var ctx = document.getElementById('mapa').getContext("2d");
+            var img = new Image();       
+            img.src = "img/chalo.png";   
+            posicion={}; 
+            posicion.x=0;            
+            if(moverse=='izquierda'){ 
+                posicion.y=60;
+            }else if(moverse=='derecha'){
+                posicion.y=155;
+            }else if(moverse=='abajo'){
+                posicion.y=10;
+            }else{
+                posicion.y=105;
             }
-            img.src = "img/github.png";         
+            img.onload = function () {
+                ctx.drawImage(  
+                        img,
+                        posicion.x,posicion.y, //x,y en la imagen
+                        40,40, //zoom x,y en la imagen
+                        x-2,y+2, //ubicacion en el mapa
+                        20,20  // zoon x,y en el mapa   
+                    );
+            }            
         }
         var bomba= [];
             bomba.armada=0;
@@ -129,7 +148,7 @@
                 if(hayPared(global_x+20,global_y)){
                      limpiarCelda()
                      global_x=global_x+20                      
-                     moverChalo(global_x,global_y)
+                     moverChalo(global_x,global_y,'derecha')
                 }            
             }
             //izquierda
@@ -137,15 +156,15 @@
                 if(hayPared(global_x-20,global_y)){
                     limpiarCelda()
                     global_x=global_x-20                
-                    moverChalo(global_x,global_y)
+                    moverChalo(global_x,global_y,'izquierda')
                 }
             }
-            //bajo
+            //abajo
             if (e.keyCode === 40) { 
                 if(hayPared(global_x,global_y+20)){ 
                     limpiarCelda()              
                     global_y=global_y+20                
-                    moverChalo(global_x,global_y) 
+                    moverChalo(global_x,global_y,'abajo') 
                 }              
             }
             //arriba
@@ -153,7 +172,7 @@
                 if(hayPared(global_x,global_y-20)){ 
                     limpiarCelda()
                     global_y=global_y-20                
-                    moverChalo(global_x,global_y)
+                    moverChalo(global_x,global_y,'arriba')
                 }
             }  
             //barra espaciadora
@@ -190,7 +209,50 @@
 
 
 
+//////////////////////////////////////
+/////////////////////////////////////
 
+/*
+// Nuestras variables
+var canvas, ctx, img, x, y, step, direction;
+
+canvas = document.getElementById('mapa');
+ctx = canvas.getContext('2d');
+img = document.getElementById('img');
+
+// La posición x inicial, variara con cada paso
+x = 0;
+// La posición y inicial, quedará estatica
+y = 0;
+
+// Numerador de paso, lo usaremos para saber que frame dibujar
+step = 0;
+
+// Direccion, 1 derecha, -1 izquierda
+direction = 1;
+
+setInterval(function() {
+    // Borramos lo dibujado
+    ctx.clearRect(20, 20, 20, 20);
+    
+    // Dibujamos el frame adecuado en la posicion correspondiente
+    ctx.drawImage(  
+        img,
+        x*(-1),155, //x,y en la imagen
+        40,40, //zoom x,y en la imagen
+        15,22, //ubicacion en el mapa
+        20,20  // zoon x,y en el mapa   
+    );
+    x++;
+    if (x==150){
+        x=0;
+    }
+
+    
+}, 1000 / 12); // Aproximadamente 12 frames por segundo
+*/
+////////////////////////////////////
+///////////////////////////////////
 
 
 /////////////////////////////////
