@@ -43,8 +43,9 @@
         //dibujar relleno de mapa
         var global_x=20;
         var global_y=20;
-        for (var i = 0; i < 400; i=i+20) {
-            for (var j = 0; j < 400; j=j+20) {
+        var nMapa=400;
+        for (var i = 0; i < nMapa; i=i+20) {
+            for (var j = 0; j < nMapa; j=j+20) {
                 if(i==0 || j==0 || i==380 || j==380){
                     ponerLadrillo(i,j,false)
                 }else{
@@ -244,31 +245,97 @@
             //Enter
             //Restablecemos valores            
             if (e.keyCode === 13 && controlInicio==true) {
-              
-                global_x=20;
-                global_y=20;
+                var intervalo_x=0;
+                for (var i = 0; i < nMapa; i=i+20) {
+                    for (var j = 0; j < nMapa; j=j+20) {
+                        if(i==0 || j==0 || i==380 || j==380){
+                        }else{                          
+                            if(intervalo_x>2){
+                                quitarLadrillo(i,j);
+                                matrizXY[i/20][j/20]=1;
+                                intervalo_x=0;                                                                
+                            }else{                                
+                                if(i==j){
+                                    ponerLadrillo(i,j,false);
+                                    matrizXY[i/20][j/20]='*';
+                                }
+                                if(nMapa-i == nMapa-j){
+                                    ponerLadrillo(i,(nMapa-j),false);
+                                    matrizXY[i/20][(nMapa-j)/20]='*';
+                                }                               
+                            }
+                        }                       
+                        intervalo_x++;                        
+                    }            
+                }
+                /////////////////////////////////////////
+                /////////////////////////////////////////              
                 quitarLadrillo(20,20);
-                moverChalo(20,20)
-                quitarLadrillo(20,40);
-                quitarLadrillo(20,60);
-                quitarLadrillo(20,80);
-                quitarLadrillo(40,20);
-                quitarLadrillo(60,20);
-                quitarLadrillo(80,20);    
-                //Crear espcio de mivimiento en forma de  L 4 cuadros
-                matrizXY[1][1]=1;//no hay pared
-                matrizXY[1][2]=1;
-                matrizXY[1][3]=1;
-                matrizXY[1][4]=1;
-                matrizXY[2][1]=1;
-                matrizXY[3][1]=1;
-                matrizXY[4][1]=1;        
+                moverChalo(20,20);      
                 controlInicio=false; 
+                /////////////////////////////////////////
+                ////////////////////////////////////////
+                var time=1000;
+               setTimeout(function(){ playerbombaAction.run(20,80); },time);
+               setTimeout(function(){ playerbombaAction.run(20,140,0.5); },time+2000);
+               setTimeout(function(){ playerbombaAction.run(20,200,1); },time+4000);
+               setTimeout(function(){ playerbombaAction.run(20,260,1.5); },time+3000);
+               setTimeout(function(){ playerbombaAction.run(20,320,2); },time+1000);
             }
             console.log(e.keyCode)
         }, false);
 
+var playerbombaAction= (function (){ 
+    var refreshIntervalId;
+    return{ 
+        run:function(x,y,velocidad=1){            
+            var direccion=1;
+            refreshIntervalId =setInterval(function() {
+                var ctx = document.getElementById('mapa').getContext("2d");
+                var img = new Image();       
+                img.src = "img/player-bomba.jpg";     
+                ctx.clearRect(x, y, 20, 20);
+                img.onload = function () {
+                    ctx.drawImage(  
+                            img,
+                            0,5, //x,y en la imagen
+                            100,100, //zoom x,y en la imagen
+                            x,y, //ubicacion en el mapa
+                            19,19  // zoon x,y en el mapa   
+                        );
+                } 
+                if(direccion==1){
+                    x=x+20;
+                    
+                }else{
+                    x=x-20;
+                }
+                if((x/20)==matrix_x && (y/20)==matrix_y){
+                    alert('Game Over');
+                    location.reload();
+                }
+                if(nMapa-40<=x || x==20){
+                    direccion=direccion*(-1);
+                }
+                console.log(x);
+                
+                
+            }, 1000/(5*velocidad)); // Aproximadamente 12 frames por segundo 
+                
+        },
+        stop:function(){
+            clearInterval(refreshIntervalId);
+        } 
+    }
+})();
 
+
+
+//stop
+//clearInterval(refreshIntervalId);
+
+
+    
 
 
 //////////////////////////////////////
