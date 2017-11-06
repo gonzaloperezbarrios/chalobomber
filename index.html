@@ -67,12 +67,14 @@
             var canvas = document.getElementById('mapa');
             var contexto = canvas.getContext('2d');
             contexto.fillStyle = 'white';
+            contexto.clearRect(x, y, 20, 20);
             contexto.fillRect(x,y, 20, 20);                                   
         }
         function ponerLadrilloAcero(x,y,madera=true){
             var context = document.getElementById('mapa').getContext("2d");
             var img = new Image();
             img.onload = function () {
+                context.clearRect(x, y, 20, 20);
                 context.drawImage(img, x, y,20,20);
             }
             if(madera){
@@ -96,6 +98,7 @@
             }else{
                 posicion.y=105;
             }
+            ctx.clearRect(x, y, 20, 20);
             img.onload = function () {
                 ctx.drawImage(  
                         img,
@@ -148,6 +151,7 @@
             }
             var context = document.getElementById('mapa').getContext("2d");
             var img = new Image();
+            //context.clearRect(x, y, 20, 20);
             img.onload = function () {
                 context.drawImage(img, x, y,20,20);
             }
