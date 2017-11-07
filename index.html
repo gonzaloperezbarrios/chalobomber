@@ -184,7 +184,6 @@
             }
             if(matrizXY[x][y]===0){//hay pared
                 matrizXY[x][y]=1;//quite pared               
-                console.log(x+","+y)
             }
         }
 
@@ -246,7 +245,7 @@
             //Restablecemos valores            
             if (e.keyCode === 13 && controlInicio==true) {
                 var intervalo_x=0;
-                for (var i = 0; i < nMapa; i=i+20) {
+                for (var i = 0; i < nMapa; i=i+20) {                               
                     for (var j = 0; j < nMapa; j=j+20) {
                         if(i==0 || j==0 || i==380 || j==380){
                         }else{                          
@@ -254,19 +253,30 @@
                                 quitarLadrillo(i,j);
                                 matrizXY[i/20][j/20]=1;
                                 intervalo_x=0;                                                                
-                            }else{                                
+                            }else{ 
+                                var numTemp=i*numeroAleatorio(1, 3);
+                                if(numTemp>=nMapa){
+                                    numTemp=nMapa-nMapa+20;
+                                }
+                                ponerLadrillo(numTemp,j,false);
+                                matrizXY[numTemp/20][j/20]='*';  
+                                /*
+                                //diagonal principal
                                 if(i==j){
                                     ponerLadrillo(i,j,false);
                                     matrizXY[i/20][j/20]='*';
                                 }
+                                //diagonal secundario
                                 if(nMapa-i == nMapa-j){
                                     ponerLadrillo(i,(nMapa-j),false);
                                     matrizXY[i/20][(nMapa-j)/20]='*';
-                                }                               
+                                }         
+                                */
+                                                     
                             }
                         }                       
                         intervalo_x++;                        
-                    }            
+                    }
                 }
                 /////////////////////////////////////////
                 /////////////////////////////////////////              
@@ -282,8 +292,11 @@
                setTimeout(function(){ playerbombaAction.run(20,260,1.5); },time+3000);
                setTimeout(function(){ playerbombaAction.run(20,320,2); },time+1000);
             }
-            console.log(e.keyCode)
         }, false);
+
+function numeroAleatorio(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
+}
 
 var playerbombaAction= (function (){ 
     var refreshIntervalId;
@@ -317,11 +330,7 @@ var playerbombaAction= (function (){
                 if(nMapa-40<=x || x==20){
                     direccion=direccion*(-1);
                 }
-                console.log(x);
-                
-                
             }, 1000/(5*velocidad)); // Aproximadamente 12 frames por segundo 
-                
         },
         stop:function(){
             clearInterval(refreshIntervalId);
@@ -331,8 +340,7 @@ var playerbombaAction= (function (){
 
 
 
-//stop
-//clearInterval(refreshIntervalId);
+
 
 
     
