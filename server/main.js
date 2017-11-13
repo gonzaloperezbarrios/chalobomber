@@ -11,13 +11,19 @@ var messages=[{
 
 var player={};
     player.nMatriz=0;
+    player.nMapa=0;
+    player.matrizXY=[];
+    player.player2=-1;
+    //PLAYER 1
     player.matrix_x=0;
     player.matrix_y=0;
     player.global_x=0;
     player.global_y=0;
-    player.nMapa=0;
-    player.matrizXY=[];
-    player.player2=-1;
+    //PLAYER 2
+    player.matrix_x_2=0;
+    player.matrix_y_2=0;
+    player.global_x_2=0;
+    player.global_y_2=0;
 
 var mapaNoCreado=true;
 
@@ -51,30 +57,27 @@ io.on('connection',function(socket){
         console.log("player Conectado: "+player.player2);
         if(player.player2==0){
             player.onlinePlayer2=false;
-            console.log('a')
         }else if(player.player2==1){
             player.onlinePlayer2=true;
-            console.log('a2')
         }else{
             player.onlinePlayer2='lleno';
-            console.log('a3')
         }
         socket.emit('mapa-server',player);
         console.log('Mapa Aletorio Creado');
     }); 
     
-    socket.on('move-player-server',function(move){ 
+    socket.on('move-player-server',function(move,player2){ 
         var isMove=false;
         if(move=='derecha'){
-            isMove=movePlayerAction.derecha();
+            isMove=movePlayerAction.derecha(player2);
         }else if(move=='izquierda'){
-            isMove=movePlayerAction.izquierda();
+            isMove=movePlayerAction.izquierda(player2);
         }else if(move=='abajo'){
-            isMove=movePlayerAction.abajo();
+            isMove=movePlayerAction.abajo(player2);
         }else if(move=='arriba'){
-            isMove=movePlayerAction.arriba();
+            isMove=movePlayerAction.arriba(player2);
         }else{
-            //bomba
+            //SIN MOVIMIENTO
         }
         if(isMove){
             io.sockets.emit('moved-payer-server',player);
@@ -101,12 +104,19 @@ io.on('connection',function(socket){
 function initPlayBomber(){
     //Llenar mapa posiciones logicas
     var nMatriz=20;
+    var nMapa=400;
+    //PLAYER 1
     var matrix_x=1;
     var matrix_y=1;
-    //dibujar relleno de mapa
     var global_x=20;
     var global_y=20;
-    var nMapa=400;
+    //PLAYER 2
+    var matrix_x_2=18;
+    var matrix_y_2=16;
+    var global_x_2=360;
+    var global_y_2=320;
+    
+    //dibujar relleno de mapa  
     var matrizXY=new Array(nMatriz + 1);        
     for (var i = 0; i < nMatriz; i++) {
         matrizXY[i] = new Array(nMatriz + 1);
@@ -114,6 +124,7 @@ function initPlayBomber(){
             matrizXY[i][j]=0; //pared              
         }            
     }  
+
     //Eliminar los bordes        
     for (var i = 0; i < nMatriz; i++) {
         for (var j = 0; j < nMatriz; j++) {
@@ -123,12 +134,20 @@ function initPlayBomber(){
         }            
     }
     player.nMatriz=nMatriz;
+    player.nMapa=nMapa;  
+    player.matrizXY=matrizXY; 
+      
+    //PLAYER 1
     player.matrix_x=matrix_x;
     player.matrix_y=matrix_y;
     player.global_x=global_x;
     player.global_y=global_y;
-    player.nMapa=nMapa;  
-    player.matrizXY=matrizXY;     
+    //PLAYER 2
+    player.matrix_x_2=matrix_x_2;
+    player.matrix_y_2=matrix_y_2;
+    player.global_x_2=global_x_2;
+    player.global_y_2=global_y_2;
+  
 }
 initPlayBomber();
 
@@ -164,52 +183,80 @@ function numeroAleatorio(min, max) {
 
 var movePlayerAction= (function (){ 
     return{ 
-        derecha:function(){
-            if(noHayPared(player.matrix_x+1,player.matrix_y)){
-               // limpiarCelda()              
-                player.global_x=player.global_x+20;
-                player.matrix_x++; 
-                player.moved='derecha'; 
-                console.log("Player: Mover Derecha, "+player.global_x+","+player.global_y);                  
-               // moverChalo(player.global_x,player.global_y,'derecha')
-                return true;
-            }
+        derecha:function(player2){
+            player.moved='derecha'; 
+            if(player2===true){
+                if(noHayPared(player.matrix_x_2+1,player.matrix_y_2)){
+                    player.global_x_2=player.global_x_2+20;
+                    player.matrix_x_2++; 
+                    console.log("Player 2: Mover Derecha, "+player.global_x_2+","+player.global_y_2); 
+                    return true;
+                } 
+            }else{
+                if(noHayPared(player.matrix_x+1,player.matrix_y)){
+                    player.global_x=player.global_x+20;
+                    player.matrix_x++; 
+                    console.log("Player: Mover Derecha, "+player.global_x+","+player.global_y); 
+                    return true;
+                }
+            }         
             return false;             			
         }, 
-        izquierda:function(){
-            if(noHayPared(player.matrix_x-1,player.matrix_y)){
-               // limpiarCelda()
-                player.global_x=player.global_x-20;
-                player.matrix_x--;   
-                player.moved='izquierda'; 
-                console.log("Player: Mover izquierda, "+player.global_x+","+player.global_y);
-               // moverChalo(player.global_x,player.global_y,'izquierda')
-                return true;
-            }
+        izquierda:function(player2){  
+            player.moved='izquierda';           
+            if(player2===true){
+                if(noHayPared(player.matrix_x_2-1,player.matrix_y_2)){
+                    player.global_x_2=player.global_x_2-20;
+                    player.matrix_x_2--; 
+                    console.log("Player 2: Mover izquierda, "+player.global_x_2+","+player.global_y_2); 
+                    return true;
+                }
+            }else{                
+                if(noHayPared(player.matrix_x-1,player.matrix_y)){
+                    player.global_x=player.global_x-20;
+                    player.matrix_x--; 
+                    console.log("Player: Mover izquierda, "+player.global_x+","+player.global_y); 
+                    return true;
+                }
+            }                 
             return false;   	
         },
-        abajo:function(){
-            if(noHayPared(player.matrix_x,player.matrix_y+1)){ 
-               // limpiarCelda()              
-                player.global_y=player.global_y+20;
-                player.matrix_y++;     
-                player.moved='abajo';          
-                console.log("Player: Mover abajo, "+player.global_x+","+player.global_y);  
-               // moverChalo(player.global_x,player.global_y,'abajo') 
-                return true;
-            }
+        abajo:function(player2){
+            player.moved='abajo';          
+            if(player2===true){
+                if(noHayPared(player.matrix_x_2,player.matrix_y_2+1)){
+                    player.global_y_2=player.global_y_2+20;
+                    player.matrix_y_2++;  
+                    console.log("Player 2: Mover abajo, "+player.global_x_2+","+player.global_y_2);
+                    return true;
+                }
+            }else{
+                if(noHayPared(player.matrix_x,player.matrix_y+1)){
+                    player.global_y=player.global_y+20;
+                    player.matrix_y++;  
+                    console.log("Player: Mover abajo, "+player.global_x+","+player.global_y);
+                    return true;
+                }
+            }  
             return false;   
         },
-        arriba:function(){
-            if(noHayPared(player.matrix_x,player.matrix_y-1)){ 
-               // limpiarCelda()
-                player.global_y=player.global_y-20;
-                player.matrix_y--;  
-                player.moved='arriba';   
-                console.log("Player: Mover arriba, "+player.global_x+","+player.global_y);       
-                //moverChalo(player.global_x,player.global_y,'arriba')
-                return true;
-            }
+        arriba:function(player2){
+            player.moved='arriba';   
+            if(player2===true){
+                if(noHayPared(player.matrix_x_2,player.matrix_y_2-1)){
+                    player.global_y_2=player.global_y_2-20;
+                    player.matrix_y_2--;  
+                    console.log("Player 2: Mover arriba, "+player.global_x_2+","+player.global_y_2);
+                    return true;
+                }
+            }else{
+                if(noHayPared(player.matrix_x,player.matrix_y-1)){
+                    player.global_y=player.global_y-20;
+                    player.matrix_y--;  
+                    console.log("Player: Mover arriba, "+player.global_x+","+player.global_y);
+                    return true;
+                }
+            } 
             return false;   
         },
     }
@@ -235,7 +282,7 @@ function kabum(matrix_x_temp,matrix_y_temp) {
 }
 
 function borrarLadrilloLogico(x,y){
-    if(player.matrix_x==x && player.matrix_y==y){
+    if(player.matrix_x==x && player.matrix_y==y || player.matrix_x_2==x && player.matrix_y_2==y){
         console.log('Game Over');
         player.matrizXY[x][y]="game-over";
     }

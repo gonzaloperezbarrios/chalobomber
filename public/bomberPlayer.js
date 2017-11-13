@@ -4,6 +4,9 @@
 
 //Iniciar valor del servidor
 var nMatriz=0;
+var nMapa=0;
+var matrizXY=[];
+var player2=false;
 //PLAYER 1
 var matrix_x=0;
 var matrix_y=0;
@@ -14,17 +17,21 @@ var matrix_x_2=0;
 var matrix_y_2=0;
 var global_x_2=0;
 var global_y_2=0;
-var nMapa=0;
-var matrizXY=[];
-var player2=false;
+
 function actualizarPlayer(player){  
     nMatriz=player.nMatriz;
+    nMapa=player.nMapa;
+    matrizXY=player.matrizXY;
+    //PLAYER 1
     matrix_x=player.matrix_x;
     matrix_y=player.matrix_y;
     global_x=player.global_x;
     global_y=player.global_y;
-    nMapa=player.nMapa;
-    matrizXY=player.matrizXY;
+    //PLAYER 2
+    matrix_x_2=player.matrix_x_2;
+    matrix_y_2=player.matrix_y_2;
+    global_x_2=player.global_x_2;
+    global_y_2=player.global_y_2;
 }
 
 socket.on('player-server',function(player){
@@ -174,7 +181,12 @@ socket.on('moved-payer-server',function(player){
     if(player!=false){
      limpiarCelda();
      actualizarPlayer(player); 
-     moverChalo(global_x,global_y,player.moved);     
+     if(player2===true){
+        moverChalo(global_x_2,global_y_2,player.moved);   
+     }else{
+        moverChalo(global_x,global_y,player.moved);  
+     }
+       
     }  
  });  
 var controlInicio=true;
@@ -182,28 +194,33 @@ document.addEventListener('keydown', function (e) {
     lastDownTarget = event.target;
     //derecha
     if (e.keyCode === 39) { 
-        socket.emit('move-player-server','derecha');
+        socket.emit('move-player-server','derecha',player2);
         console.log('Player: Mover derecha');             
     }
     //izquierda
     if (e.keyCode === 37) {
-        socket.emit('move-player-server','izquierda');
+        socket.emit('move-player-server','izquierda',player2);
         console.log('Player: Mover izquierda');   
     }
     //abajo
     if (e.keyCode === 40) { 
-        socket.emit('move-player-server','abajo');
+        socket.emit('move-player-server','abajo',player2);
         console.log('Player: Mover abajo');              
     }
     //arriba
     if (e.keyCode === 38) {
-        socket.emit('move-player-server','arriba');
+        socket.emit('move-player-server','arriba',player2);
         console.log('Player: Mover arriba'); 
     }  
     //barra espaciadora
     //Poner Bomba
     if (e.keyCode === 32) {
-        ponerBomba(global_x,global_y,true)
+        if(player2===true){
+            ponerBomba(global_x_2,global_y_2,true)
+        }else{
+            ponerBomba(global_x,global_y,true)
+        }
+        
     }  
     //Enter
     //Restablecemos valores            
@@ -211,16 +228,12 @@ document.addEventListener('keydown', function (e) {
         socket.emit('mapa-aletorio-server');
         socket.on('mapa-server',function(player){
             if(player.onlinePlayer2===true){
-                player2=true;
-                quitarLadrillo(global_x_2,global_y_2);
-                moverChalo(global_x_2,global_y_2);
+                player2=true;                
             }else if(player.onlinePlayer2==='lleno'){
                 alert('Sala LLena');
                 document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
             }else{
-                player2=false;
-                quitarLadrillo(global_x,global_y);
-                moverChalo(global_x,global_y);
+                player2=false;                
             } 
             actualizarPlayer(player); 
             for (var i = 0; i < nMapa; i=i+20) {                               
@@ -237,16 +250,24 @@ document.addEventListener('keydown', function (e) {
         });      
         /////////////////////////////////////////
         /////////////////////////////////////////              
-              
         controlInicio=false; 
+        if(player2===true){
+            quitarLadrillo(global_x_2,global_y_2);
+            moverChalo(global_x_2,global_y_2);
+        }else{
+            quitarLadrillo(global_x,global_y);
+            moverChalo(global_x,global_y);
+        }
         /////////////////////////////////////////
         ////////////////////////////////////////
+        /*
         var time=1000;
         setTimeout(function(){ playerbombaAction.run(20,80); },time);
         setTimeout(function(){ playerbombaAction.run(20,140,0.5); },time+2000);
         setTimeout(function(){ playerbombaAction.run(20,200,1); },time+4000);
         setTimeout(function(){ playerbombaAction.run(20,260,1.5); },time+3000);
         setTimeout(function(){ playerbombaAction.run(20,320,2); },time+1000);
+        */
     }
 }, false);
  
