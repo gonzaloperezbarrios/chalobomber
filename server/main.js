@@ -40,6 +40,7 @@ io.on('connection',function(socket){
     //////////////////////////////////////
     ///Logica BomberChalo Multiplayer////
     ////////////////////////////////////
+    socket.emit('player-server',player);
     socket.on('mapa-aletorio-server',function(){ 
         if(mapaNoCreado==true){
             mapaAleatorio();
@@ -66,9 +67,17 @@ io.on('connection',function(socket){
             io.sockets.emit('moved-payer-server',player);
         }
         return false;
-        
+    });
+    
+    socket.on('make-kabum-server',function(x,y,x2,y2){
+        player.matrizXY[x][y]=0;//amar bomba
+        io.sockets.emit('make-payer-server',x2,y2);
+    }); 
+    socket.on('kabum-server',function(x,y){
+        kabum(x,y);
+        io.sockets.emit('kabum-payer-server',player);
     });  
-    socket.emit('player-server',player);
+   
 });
 
 
@@ -198,4 +207,26 @@ function noHayPared(x,y){
         return false;//no, puede caminar
     }
     return true;
+}
+
+//Explotar la boma
+function kabum(matrix_x_temp,matrix_y_temp) {  
+    player.matrizXY[matrix_x_temp][matrix_y_temp]="+";;
+    //realizamos la explosion en cruz en la logica
+    borrarLadrilloLogico(matrix_x_temp,matrix_y_temp);
+    borrarLadrilloLogico(matrix_x_temp+1,matrix_y_temp);
+    borrarLadrilloLogico(matrix_x_temp-1,matrix_y_temp);
+    borrarLadrilloLogico(matrix_x_temp,matrix_y_temp+1);
+    borrarLadrilloLogico(matrix_x_temp,matrix_y_temp-1);
+    console.log('Kabum');                   
+}
+
+function borrarLadrilloLogico(x,y){
+    if(player.matrix_x==x && player.matrix_y==y){
+        console.log('Game Over');
+        player.matrizXY[x][y]="game-over";
+    }
+    if(player.matrizXY[x][y]===0){//hay pared
+        player.matrizXY[x][y]="+";//simbolo + representa un 1 cuando se lance al cliente               
+    }
 }

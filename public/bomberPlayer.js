@@ -89,44 +89,28 @@ function moverChalo(x,y,moverse='derecha'){
 //Bomba en el mapa y en la logica
 var bomba= [];
     bomba.armada=0;
-    bomba.posicion=[];
     bomba.explotada=0;
 function ponerBomba(x,y,posicionarBomba=true){
-    bomba.armada=1;
     if(posicionarBomba){
-        bomba.posicion.push(x+"-"+y);      
-        matrizXY[matrix_x][matrix_y]=0;//Quitamos el espcio para que no pise la bomba
+        socket.emit('make-kabum-server',matrix_x,matrix_y,x,y);//Quitamos el espcio para que no pise la bomba
         var matrix_x_temp=matrix_x;
         var matrix_y_temp=matrix_y;
         //Iniciar tiempo para explotar
         kabum=function(){    
-            //dibujamos la explosion en cruz  
-            if(matrizXY[matrix_x_temp][matrix_y_temp]!='*'){//no sea borde                
-                quitarLadrillo(x,y);
-            }
-            if(matrizXY[matrix_x_temp+1][matrix_y_temp]!='*'){//no sea borde   
-                quitarLadrillo(x+20,y);
-            }
-            if(matrizXY[matrix_x_temp-1][matrix_y_temp]!='*'){//no sea borde   
-                quitarLadrillo(x-20,y);
-            }
-            if(matrizXY[matrix_x_temp][matrix_y_temp+1]!='*'){//no sea borde   
-                quitarLadrillo(x,y+20);
-            }
-            if(matrizXY[matrix_x_temp][matrix_y_temp-1]!='*'){//no sea borde   
-                quitarLadrillo(x,y-20);
-            }
-            //realizamos la explosion en cruz en la logica
-            borrarLadrilloLogico(matrix_x_temp,matrix_y_temp);
-            borrarLadrilloLogico(matrix_x_temp+1,matrix_y_temp);
-            borrarLadrilloLogico(matrix_x_temp-1,matrix_y_temp);
-            borrarLadrilloLogico(matrix_x_temp,matrix_y_temp+1);
-            borrarLadrilloLogico(matrix_x_temp,matrix_y_temp-1);
-            //
-            bomba.armada=0;//bomba desarmada y explotada                    
+            socket.emit('kabum-server',matrix_x_temp,matrix_y_temp);
+            bomba.armada=0;//bomba desarmada y explotada 
+            console.log('Kabum');                   
         }
-        bombaAction.explotar(kabum)
+        bombaAction.explotar(kabum)        
     }
+}
+//Armar la bomba
+socket.on('make-payer-server',function(x,y){
+    dibujarBomba(x,y);
+}); 
+
+function dibujarBomba(x,y){
+    bomba.armada=1;
     var context = document.getElementById('mapa').getContext("2d");
     var img = new Image();
     //context.clearRect(x, y, 20, 20);
@@ -134,7 +118,6 @@ function ponerBomba(x,y,posicionarBomba=true){
         context.drawImage(img, x, y,20,20);
     }
     img.src = "img/bomba.png"; 
-
 }
  
 //Explosion de la boma fuera de tiempo real en el mapa
@@ -147,34 +130,32 @@ var bombaAction= (function (){
 })();
 
 function limpiarCelda(){
-    console.log(global_x+","+global_y);
     if(bomba.armada==0){
         quitarLadrillo(global_x,global_y)                    
     }else{
         quitarLadrillo(global_x,global_y)
-        ponerBomba(global_x,global_y,false)
+        dibujarBomba(global_x,global_y);
     }
     bomba.armada=0;
 }
- 
-function borrarLadrilloLogico(x,y){
-    if(matrix_x==x && matrix_y==y){
-        alert('Game Over');
-        location.reload();
-    }
-    if(matrizXY[x][y]===0){//hay pared
-        matrizXY[x][y]=1;//quite pared               
-    }
-}
 
-function hayPared(x,y){
-    var i=matrizXY[x][y];
-    if(i===0 || i==='*'){
-        return false;//no, puede caminar
+//Explotar la bomba
+socket.on('kabum-payer-server',function(player){
+     actualizarPlayer(player); 
+     for (var i = 0; i < nMapa; i=i+20) {                               
+        for (var j = 0; j < nMapa; j=j+20) {
+            if(matrizXY[i/20][j/20]=='+'){
+                quitarLadrillo(i,j);
+                matrizXY[i/20][j/20]=1;//quite pared 
+            }
+            if(matrizXY[i/20][j/20]=="game-over"){
+                alert('Game Over');
+                location.reload();
+            }                                        
+        }
     }
-    return true;
-}
-        
+}); 
+     
         
 //Moverse en el mapa
 socket.on('moved-payer-server',function(player){
