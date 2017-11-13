@@ -4,13 +4,20 @@
 
 //Iniciar valor del servidor
 var nMatriz=0;
+//PLAYER 1
 var matrix_x=0;
 var matrix_y=0;
 var global_x=0;
 var global_y=0;
+//PLAYER 2
+var matrix_x_2=0;
+var matrix_y_2=0;
+var global_x_2=0;
+var global_y_2=0;
 var nMapa=0;
 var matrizXY=[];
-function actualizarPlayer(player){
+var player2=false;
+function actualizarPlayer(player){  
     nMatriz=player.nMatriz;
     matrix_x=player.matrix_x;
     matrix_y=player.matrix_y;
@@ -19,6 +26,7 @@ function actualizarPlayer(player){
     nMapa=player.nMapa;
     matrizXY=player.matrizXY;
 }
+
 socket.on('player-server',function(player){
     actualizarPlayer(player);
     for (var i = 0; i < nMapa; i=i+20) {
@@ -61,8 +69,12 @@ function ponerLadrillo(x,y,madera=true){
 //mover player en el mapa
 function moverChalo(x,y,moverse='derecha'){
     var ctx = document.getElementById('mapa').getContext("2d");
-    var img = new Image();       
-    img.src = "img/chalo.png";   
+    var img = new Image();
+    if(player2===true){
+        img.src = "img/betty.png";   
+    }else{
+        img.src = "img/chalo.png"; 
+    } 
     posicion={}; 
     posicion.x=0;            
     if(moverse=='izquierda'){ 
@@ -189,7 +201,7 @@ document.addEventListener('keydown', function (e) {
         console.log('Player: Mover arriba'); 
     }  
     //barra espaciadora
-    //Poiner Bomba
+    //Poner Bomba
     if (e.keyCode === 32) {
         ponerBomba(global_x,global_y,true)
     }  
@@ -198,7 +210,19 @@ document.addEventListener('keydown', function (e) {
     if (e.keyCode === 13 && controlInicio==true) {
         socket.emit('mapa-aletorio-server');
         socket.on('mapa-server',function(player){
-            matrizXY=player.matrizXY;   
+            if(player.onlinePlayer2===true){
+                player2=true;
+                quitarLadrillo(global_x_2,global_y_2);
+                moverChalo(global_x_2,global_y_2);
+            }else if(player.onlinePlayer2==='lleno'){
+                alert('Sala LLena');
+                document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
+            }else{
+                player2=false;
+                quitarLadrillo(global_x,global_y);
+                moverChalo(global_x,global_y);
+            } 
+            actualizarPlayer(player); 
             for (var i = 0; i < nMapa; i=i+20) {                               
                 for (var j = 0; j < nMapa; j=j+20) {
                     if(matrizXY[i/20][j/20]=='*'){
@@ -213,8 +237,7 @@ document.addEventListener('keydown', function (e) {
         });      
         /////////////////////////////////////////
         /////////////////////////////////////////              
-        quitarLadrillo(global_x,global_y);
-        moverChalo(global_x,global_y);      
+              
         controlInicio=false; 
         /////////////////////////////////////////
         ////////////////////////////////////////

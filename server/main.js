@@ -17,6 +17,7 @@ var player={};
     player.global_y=0;
     player.nMapa=0;
     player.matrizXY=[];
+    player.player2=-1;
 
 var mapaNoCreado=true;
 
@@ -46,6 +47,18 @@ io.on('connection',function(socket){
             mapaAleatorio();
             mapaNoCreado=false;
         } 
+        player.player2++;
+        console.log("player Conectado: "+player.player2);
+        if(player.player2==0){
+            player.onlinePlayer2=false;
+            console.log('a')
+        }else if(player.player2==1){
+            player.onlinePlayer2=true;
+            console.log('a2')
+        }else{
+            player.onlinePlayer2='lleno';
+            console.log('a3')
+        }
         socket.emit('mapa-server',player);
         console.log('Mapa Aletorio Creado');
     }); 
@@ -115,7 +128,7 @@ function initPlayBomber(){
     player.global_x=global_x;
     player.global_y=global_y;
     player.nMapa=nMapa;  
-    player.matrizXY=matrizXY;  
+    player.matrizXY=matrizXY;     
 }
 initPlayBomber();
 
