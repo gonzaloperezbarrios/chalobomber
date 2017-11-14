@@ -117,9 +117,9 @@ function initPlayBomber(){
     var global_y_2=320;
     
     //dibujar relleno de mapa  
-    var matrizXY=new Array(nMatriz + 1);        
+    var matrizXY=new Array(nMatriz);        
     for (var i = 0; i < nMatriz; i++) {
-        matrizXY[i] = new Array(nMatriz + 1);
+        matrizXY[i] = new Array(nMatriz);
         for (var j = 0; j < nMatriz; j++) {
             matrizXY[i][j]=0; //pared              
         }            
@@ -285,7 +285,9 @@ function kabum(matrix_x_temp,matrix_y_temp) {
 
 function borrarLadrilloLogico(x,y){
     if(player.matrix_x==x && player.matrix_y==y || player.matrix_x_2==x && player.matrix_y_2==y){
-        console.log('Game Over');
+        console.log(`Game Over ${x}-${y}`);
+        console.log(`player 1 kabum : ${player.matrix_x}-${player.matrix_y}`);
+        console.log(`player 2 kabum : ${player.matrix_x_2}-${player.matrix_y_2}`);
         player.matrizXY[x][y]="game-over";
     }
     if(player.matrizXY[x][y]===0){//hay pared

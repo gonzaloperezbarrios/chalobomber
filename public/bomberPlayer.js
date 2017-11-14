@@ -75,7 +75,6 @@ function ponerLadrillo(x,y,madera=true){
  
 //mover player en el mapa
 function moverChalo(x,y,moverse='derecha',pintarPlayer2=false){
-    console.log(pintarPlayer2+" "+moverse)
     var ctx = document.getElementById('mapa').getContext("2d");
     var img = new Image();
     if(pintarPlayer2){
@@ -111,10 +110,15 @@ var bomba= [];
     bomba.armada=0;
     bomba.explotada=0;
 function ponerBomba(x,y,posicionarBomba=true){
-    if(posicionarBomba){
-        socket.emit('make-kabum-server',matrix_x,matrix_y,x,y);//Quitamos el espcio para que no pise la bomba
-        var matrix_x_temp=matrix_x;
-        var matrix_y_temp=matrix_y;
+    if(posicionarBomba){        
+        if(player2==true){
+            var matrix_x_temp=matrix_x_2;
+            var matrix_y_temp=matrix_y_2;
+        }else{
+            var matrix_x_temp=matrix_x;
+            var matrix_y_temp=matrix_y;
+        }
+        socket.emit('make-kabum-server',matrix_x_temp,matrix_y_temp,x,y);//Quitamos el espcio para que no pise la bomba
         //Iniciar tiempo para explotar
         kabum=function(){    
             socket.emit('kabum-server',matrix_x_temp,matrix_y_temp);
@@ -151,22 +155,19 @@ var bombaAction= (function (){
 })();
 
 function limpiarCelda(){
-    //if(player2===true){
-        if(bomba.armada==0){
-            quitarLadrillo(global_x_2,global_y_2)                    
-        }else{
-            quitarLadrillo(global_x_2,global_y_2)
-            dibujarBomba(global_x_2,global_y_2);
-        }
-   // }else{
-        if(bomba.armada==0){
-            quitarLadrillo(global_x,global_y)                    
-        }else{
-            quitarLadrillo(global_x,global_y)
-            dibujarBomba(global_x,global_y);
-        }
-  //  }
-
+    if(bomba.armada==0){
+        //PLAYER 1
+        quitarLadrillo(global_x,global_y)   
+        //PLAYER 2
+        quitarLadrillo(global_x_2,global_y_2)             
+    }else{    
+        //PLAYER 1    
+        quitarLadrillo(global_x,global_y)                    
+        dibujarBomba(global_x,global_y);
+        //PLAYER 2
+        quitarLadrillo(global_x_2,global_y_2)        
+        dibujarBomba(global_x_2,global_y_2);
+    }
     bomba.armada=0;
 }
 
@@ -244,8 +245,8 @@ document.addEventListener('keydown', function (e) {
             if(player.onlinePlayer2===true){
                 player2=true;                
             }else if(player.onlinePlayer2==='lleno'){
-                //alert('Sala LLena');
-               // document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
+                alert('Sala LLena');
+                document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
             }else{
                 player2=false;                
             } 
