@@ -74,21 +74,22 @@ function ponerLadrillo(x,y,madera=true){
 }
  
 //mover player en el mapa
-function moverChalo(x,y,moverse='derecha'){
+function moverChalo(x,y,moverse='derecha',pintarPlayer2=false){
+    console.log(pintarPlayer2+" "+moverse)
     var ctx = document.getElementById('mapa').getContext("2d");
     var img = new Image();
-    if(player2===true){
+    if(pintarPlayer2){
         img.src = "img/betty.png";   
     }else{
         img.src = "img/chalo.png"; 
     } 
     posicion={}; 
     posicion.x=0;            
-    if(moverse=='izquierda'){ 
+    if(moverse==='izquierda'){ 
         posicion.y=60;
-    }else if(moverse=='derecha'){
+    }else if(moverse==='derecha'){
         posicion.y=155;
-    }else if(moverse=='abajo'){
+    }else if(moverse==='abajo'){
         posicion.y=10;
     }else{
         posicion.y=105;
@@ -123,6 +124,7 @@ function ponerBomba(x,y,posicionarBomba=true){
         bombaAction.explotar(kabum)        
     }
 }
+
 //Armar la bomba
 socket.on('make-payer-server',function(x,y){
     dibujarBomba(x,y);
@@ -149,12 +151,22 @@ var bombaAction= (function (){
 })();
 
 function limpiarCelda(){
-    if(bomba.armada==0){
-        quitarLadrillo(global_x,global_y)                    
-    }else{
-        quitarLadrillo(global_x,global_y)
-        dibujarBomba(global_x,global_y);
-    }
+    //if(player2===true){
+        if(bomba.armada==0){
+            quitarLadrillo(global_x_2,global_y_2)                    
+        }else{
+            quitarLadrillo(global_x_2,global_y_2)
+            dibujarBomba(global_x_2,global_y_2);
+        }
+   // }else{
+        if(bomba.armada==0){
+            quitarLadrillo(global_x,global_y)                    
+        }else{
+            quitarLadrillo(global_x,global_y)
+            dibujarBomba(global_x,global_y);
+        }
+  //  }
+
     bomba.armada=0;
 }
 
@@ -168,7 +180,11 @@ socket.on('kabum-payer-server',function(player){
                 matrizXY[i/20][j/20]=1;//quite pared 
             }
             if(matrizXY[i/20][j/20]=="game-over"){
-                alert('Game Over');
+                var nPlayer=1;
+                if(player2===true){
+                    nPlayer=2;
+                }
+                alert('Game Over. Player: '+nPlayer);
                 location.reload();
             }                                        
         }
@@ -179,14 +195,12 @@ socket.on('kabum-payer-server',function(player){
 //Moverse en el mapa
 socket.on('moved-payer-server',function(player){
     if(player!=false){
-     limpiarCelda();
-     actualizarPlayer(player); 
-     if(player2===true){
-        moverChalo(global_x_2,global_y_2,player.moved);   
-     }else{
-        moverChalo(global_x,global_y,player.moved);  
-     }
-       
+        limpiarCelda();
+        actualizarPlayer(player);  
+        //PLAYER 1
+        moverChalo(global_x,global_y,player.moved,false);   
+        //PLAYER 2
+        setTimeout(function(){ moverChalo(global_x_2,global_y_2,player.moved2,true); },10);
     }  
  });  
 var controlInicio=true;
@@ -230,8 +244,8 @@ document.addEventListener('keydown', function (e) {
             if(player.onlinePlayer2===true){
                 player2=true;                
             }else if(player.onlinePlayer2==='lleno'){
-                alert('Sala LLena');
-                document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
+                //alert('Sala LLena');
+               // document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
             }else{
                 player2=false;                
             } 
@@ -251,13 +265,12 @@ document.addEventListener('keydown', function (e) {
         /////////////////////////////////////////
         /////////////////////////////////////////              
         controlInicio=false; 
-        if(player2===true){
-            quitarLadrillo(global_x_2,global_y_2);
-            moverChalo(global_x_2,global_y_2);
-        }else{
-            quitarLadrillo(global_x,global_y);
-            moverChalo(global_x,global_y);
-        }
+        //PLAYER 1
+        quitarLadrillo(global_x,global_y);
+        moverChalo(global_x,global_y,'derecha',false);
+        //PLAYER 2
+        quitarLadrillo(global_x_2,global_y_2);
+        moverChalo(global_x_2,global_y_2,'izquierda',true);
         /////////////////////////////////////////
         ////////////////////////////////////////
         /*

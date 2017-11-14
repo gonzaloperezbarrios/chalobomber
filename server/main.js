@@ -159,7 +159,6 @@ function mapaAleatorio(){
             if(i==0 || j==0 || i==380 || j==380){
             }else{                          
                 if(intervalo_x>2){
-                    //quitarLadrillo(i,j);
                     player.matrizXY[i/20][j/20]=1;
                     intervalo_x=0;                                                                
                 }else{ 
@@ -167,7 +166,6 @@ function mapaAleatorio(){
                     if(numTemp>=player.nMapa){
                         numTemp=player.nMapa-player.nMapa+20;
                     }
-                    //ponerLadrillo(numTemp,j,false);
                     player.matrizXY[numTemp/20][j/20]='*';  
                 }
             }                       
@@ -184,11 +182,11 @@ function numeroAleatorio(min, max) {
 var movePlayerAction= (function (){ 
     return{ 
         derecha:function(player2){
-            player.moved='derecha'; 
             if(player2===true){
                 if(noHayPared(player.matrix_x_2+1,player.matrix_y_2)){
                     player.global_x_2=player.global_x_2+20;
                     player.matrix_x_2++; 
+                    player.moved2='derecha'; 
                     console.log("Player 2: Mover Derecha, "+player.global_x_2+","+player.global_y_2); 
                     return true;
                 } 
@@ -196,6 +194,7 @@ var movePlayerAction= (function (){
                 if(noHayPared(player.matrix_x+1,player.matrix_y)){
                     player.global_x=player.global_x+20;
                     player.matrix_x++; 
+                    player.moved='derecha'; 
                     console.log("Player: Mover Derecha, "+player.global_x+","+player.global_y); 
                     return true;
                 }
@@ -203,11 +202,11 @@ var movePlayerAction= (function (){
             return false;             			
         }, 
         izquierda:function(player2){  
-            player.moved='izquierda';           
             if(player2===true){
                 if(noHayPared(player.matrix_x_2-1,player.matrix_y_2)){
                     player.global_x_2=player.global_x_2-20;
                     player.matrix_x_2--; 
+                    player.moved2='izquierda';           
                     console.log("Player 2: Mover izquierda, "+player.global_x_2+","+player.global_y_2); 
                     return true;
                 }
@@ -215,6 +214,7 @@ var movePlayerAction= (function (){
                 if(noHayPared(player.matrix_x-1,player.matrix_y)){
                     player.global_x=player.global_x-20;
                     player.matrix_x--; 
+                    player.moved='izquierda';           
                     console.log("Player: Mover izquierda, "+player.global_x+","+player.global_y); 
                     return true;
                 }
@@ -222,11 +222,11 @@ var movePlayerAction= (function (){
             return false;   	
         },
         abajo:function(player2){
-            player.moved='abajo';          
             if(player2===true){
                 if(noHayPared(player.matrix_x_2,player.matrix_y_2+1)){
                     player.global_y_2=player.global_y_2+20;
                     player.matrix_y_2++;  
+                    player.moved2='abajo';          
                     console.log("Player 2: Mover abajo, "+player.global_x_2+","+player.global_y_2);
                     return true;
                 }
@@ -234,6 +234,7 @@ var movePlayerAction= (function (){
                 if(noHayPared(player.matrix_x,player.matrix_y+1)){
                     player.global_y=player.global_y+20;
                     player.matrix_y++;  
+                    player.moved='abajo';          
                     console.log("Player: Mover abajo, "+player.global_x+","+player.global_y);
                     return true;
                 }
@@ -241,11 +242,11 @@ var movePlayerAction= (function (){
             return false;   
         },
         arriba:function(player2){
-            player.moved='arriba';   
             if(player2===true){
                 if(noHayPared(player.matrix_x_2,player.matrix_y_2-1)){
                     player.global_y_2=player.global_y_2-20;
-                    player.matrix_y_2--;  
+                    player.matrix_y_2--; 
+                    player.moved2='arriba';   
                     console.log("Player 2: Mover arriba, "+player.global_x_2+","+player.global_y_2);
                     return true;
                 }
@@ -253,6 +254,7 @@ var movePlayerAction= (function (){
                 if(noHayPared(player.matrix_x,player.matrix_y-1)){
                     player.global_y=player.global_y-20;
                     player.matrix_y--;  
+                    player.moved='arriba'; 
                     console.log("Player: Mover arriba, "+player.global_x+","+player.global_y);
                     return true;
                 }
