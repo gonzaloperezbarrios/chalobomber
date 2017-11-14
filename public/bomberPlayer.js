@@ -57,6 +57,15 @@ function quitarLadrillo(x,y){
     contexto.clearRect(x, y, 20, 20);
     contexto.fillRect(x,y, 20, 20);                                   
 }
+
+//Borrar bloque en el mapa
+function quitarLadrilloRojo(x,y){            
+    var canvas = document.getElementById('mapa');
+    var contexto = canvas.getContext('2d');
+    contexto.fillStyle = 'red';
+    contexto.clearRect(x, y, 20, 20);
+    contexto.fillRect(x,y, 20, 20);                                   
+}
  
 //poner bloque en el mapa
 function ponerLadrillo(x,y,madera=true){
@@ -177,19 +186,33 @@ socket.on('kabum-payer-server',function(player){
      for (var i = 0; i < nMapa; i=i+20) {                               
         for (var j = 0; j < nMapa; j=j+20) {
             if(matrizXY[i/20][j/20]=='+'){
-                quitarLadrillo(i,j);
+                quitarLadrilloRojo(i,j);
+                socket.emit('bomber-exploted-server',i/20,j/20);
                 matrizXY[i/20][j/20]=1;//quite pared 
             }
-            if(matrizXY[i/20][j/20]=="game-over"){
-                var nPlayer=1;
+            if(matrizXY[i/20][j/20]=="game-over2"){ 
                 if(player2===true){
-                    nPlayer=2;
-                }
-                alert('Game Over. Player: '+nPlayer);
-                location.reload();
-            }                                        
+                   // alert('Game Over. Player 2'); 
+                    document.getElementById('contendor').innerHTML="<h1>Game Over. Player 2</h1>";
+                    console.log('Game Over. Player 2'); 
+                }else{
+                    //setTimeout(function(){ alert('Winner. Player 1'); },10);
+                    document.getElementById('contendor').innerHTML="<h1>Winner. Player 1</h1>";
+                    console.log('Winner. Player 1'); 
+                }                
+                //location.reload();
+            }    
+            if(matrizXY[i/20][j/20]=="game-over"){ 
+                if(player2===true){
+                    alert('Winner. Player 1');  
+                }else{
+                    alert('Game Over. Player 2'); 
+                }                
+                //location.reload();
+            }                                      
         }
     }
+    
 }); 
      
         
@@ -243,12 +266,14 @@ document.addEventListener('keydown', function (e) {
         socket.emit('mapa-aletorio-server');
         socket.on('mapa-server',function(player){
             if(player.onlinePlayer2===true){
-                player2=true;                
+                player2=true;   
+                document.getElementById('name-player').innerHTML="Player 2"; 
             }else if(player.onlinePlayer2==='lleno'){
                 alert('Sala LLena');
                 document.getElementById('contendor').innerHTML="<h1>Sala llena</h1>";
             }else{
-                player2=false;                
+                player2=false;   
+                document.getElementById('name-player').innerHTML="Player 1";             
             } 
             actualizarPlayer(player); 
             for (var i = 0; i < nMapa; i=i+20) {                               
@@ -265,7 +290,7 @@ document.addEventListener('keydown', function (e) {
         });      
         /////////////////////////////////////////
         /////////////////////////////////////////              
-        controlInicio=false; 
+        controlInicio=false;       
         //PLAYER 1
         quitarLadrillo(global_x,global_y);
         moverChalo(global_x,global_y,'derecha',false);

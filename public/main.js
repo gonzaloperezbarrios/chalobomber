@@ -1,4 +1,4 @@
-var socket=io.connect('http://localhost:8080/',{'forceNew':true});
+var socket=io.connect('http://10.220.0.96:8080/',{'forceNew':true});
 socket.on('messages',function(dato){
     console.log(dato);
     render(dato);
