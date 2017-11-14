@@ -158,7 +158,7 @@ function dibujarBomba(x,y){
 var bombaAction= (function (){ 
     return{ 
         explotar:function(kabum){
-            setTimeout(kabum, 2000);			
+            setTimeout(kabum, 1000);			
         }, 
     }
 })();
@@ -204,12 +204,15 @@ socket.on('kabum-payer-server',function(player){
             }    
             if(matrizXY[i/20][j/20]=="game-over"){ 
                 if(player2===true){
-                    alert('Winner. Player 1');  
+                    document.getElementById('contendor').innerHTML="<h1>Winner. Player 1</h1>";
+                    console.log('Winner. Player 1'); 
                 }else{
-                    alert('Game Over. Player 2'); 
+                    // alert('Game Over. Player 2'); 
+                    document.getElementById('contendor').innerHTML="<h1>Game Over. Player 2</h1>";
+                    console.log('Game Over. Player 2'); 
                 }                
                 //location.reload();
-            }                                      
+            }                                    
         }
     }
     
