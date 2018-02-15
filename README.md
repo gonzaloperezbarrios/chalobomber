@@ -13,3 +13,10 @@ https://www.w3schools.com/jsref/met_win_setinterval.asp
 
 Escalado y recorte en imágenes en canvas
 https://desarrolloweb.com/articulos/escalado-recorte-imagenes-canvas.html
+
+#Prerrequisitos
+node
+npm
+#Despliegue
+npm install
+npm start
